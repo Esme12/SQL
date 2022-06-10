@@ -1,0 +1,138 @@
+------------------------------------------
+--DDL statement for table 'HR' database--
+--------------------------------------------
+
+-- Drop the tables in case they exist
+
+DROP TABLE EMPLOYEES;
+DROP TABLE JOB_HISTORY;
+DROP TABLE JOBS;
+DROP TABLE DEPARTMENTS;
+DROP TABLE LOCATIONS;
+
+-- Create the tables
+
+CREATE TABLE EMPLOYEES (
+                          EMP_ID CHAR(9) NOT NULL,
+                          F_NAME VARCHAR(15) NOT NULL,
+                          L_NAME VARCHAR(15) NOT NULL,
+                          SSN CHAR(9),
+                          B_DATE DATE,
+                          SEX CHAR,
+                          ADDRESS VARCHAR(30),
+                          JOB_ID CHAR(9),
+                          SALARY DECIMAL(10,2),
+                          MANAGER_ID CHAR(9),
+                          DEP_ID CHAR(9) NOT NULL,
+                          PRIMARY KEY (EMP_ID)
+                        );
+
+CREATE TABLE JOB_HISTORY (
+                            EMPL_ID CHAR(9) NOT NULL,
+                            START_DATE DATE,
+                            JOBS_ID CHAR(9) NOT NULL,
+                            DEPT_ID CHAR(9),
+                            PRIMARY KEY (EMPL_ID,JOBS_ID)
+                          );
+
+CREATE TABLE JOBS (
+                    JOB_IDENT CHAR(9) NOT NULL,
+                    JOB_TITLE VARCHAR(30) ,
+                    MIN_SALARY DECIMAL(10,2),
+                    MAX_SALARY DECIMAL(10,2),
+                    PRIMARY KEY (JOB_IDENT)
+                  );
+
+CREATE TABLE DEPARTMENTS (
+                            DEPT_ID_DEP CHAR(9) NOT NULL,
+                            DEP_NAME VARCHAR(15) ,
+                            MANAGER_ID CHAR(9),
+                            LOC_ID CHAR(9),
+                            PRIMARY KEY (DEPT_ID_DEP)
+                          );
+
+CREATE TABLE LOCATIONS (
+                          LOCT_ID CHAR(9) NOT NULL,
+                          DEP_ID_LOC CHAR(9) NOT NULL,
+                          PRIMARY KEY (LOCT_ID,DEP_ID_LOC)
+                        );
+                        
+SELECT * FROM EMPLOYEES;
+SELECT * FROM JOB_HISTORY;
+SELECT * FROM JOBS;
+SELECT * FROM DEPARTMENTS;
+SELECT * FROM LOCATIONS;
+
+SELECT F_NAME, L_NAME FROM EMPLOYEES
+WHERE ADDRESS LIKE '%Elgin,IL';
+
+SELECT F_NAME, L_NAME FROM EMPLOYEES
+WHERE YEAR(B_DATE) LIKE '197%';
+
+SELECT F_NAME, L_NAME FROM EMPLOYEES
+WHERE DEP_ID = 5 AND SALARY BETWEEN 60000 AND 70000;
+
+SELECT F_NAME, L_NAME, DEP_ID FROM EMPLOYEES
+ORDER BY DEP_ID DESC, L_NAME DESC;
+
+SELECT DEP_ID, COUNT(*) AS EMPLOYEES_PER_DEP FROM EMPLOYEES
+GROUP BY DEP_ID;
+
+SELECT DEP_ID, 
+COUNT(*) AS NUM_EMPLOYEES,
+AVG(SALARY) AS AVG_SALARY 
+FROM EMPLOYEES
+GROUP BY DEP_ID
+HAVING COUNT(*) <4;
+
+SELECT *  FROM EMPLOYEES
+WHERE SALARY < (SELECT AVG(SALARY) FROM EMPLOYEES);
+
+SELECT EMP_ID, SALARY, 
+(SELECT MAX(SALARY) FROM EMPLOYEES) AS MAX_SALARY
+FROM EMPLOYEES;
+
+SELECT * 
+FROM (SELECT EMP_ID, F_NAME, L_NAME, DEP_ID FROM EMPLOYEES)
+AS EMP4ALL;
+
+SELECT * FROM EMPLOYEES
+WHERE JOB_ID IN (SELECT JOB_IDENT FROM JOBS);
+
+SELECT * FROM EMPLOYEES
+WHERE JOB_ID IN
+(SELECT JOB_IDENT FROM JOBS
+WHERE JOB_TITLE = 'Jr. Designer');
+
+SELECT * FROM JOBS
+WHERE JOB_IDENT IN 
+(SELECT JOB_ID FROM EMPLOYEES
+WHERE SALARY > 70000);
+
+SELECT * FROM JOBS
+WHERE JOB_IDENT IN 
+(SELECT JOB_ID FROM EMPLOYEES
+WHERE YEAR(B_DATE) > 1976);
+
+SELECT * FROM JOBS
+WHERE JOB_IDENT IN 
+(SELECT JOB_ID FROM EMPLOYEES
+WHERE YEAR(B_DATE) > 1976 AND SEX='F');
+
+SELECT * FROM EMPLOYEES;
+SELECT * FROM JOB_HISTORY;
+SELECT * FROM JOBS;
+SELECT * FROM DEPARTMENTS;
+SELECT * FROM LOCATIONS;
+
+SELECT *
+FROM EMPLOYEES E, JOBS J
+WHERE E.JOB_ID = J.JOB_IDENT;
+
+SELECT EMP_ID, F_NAME, L_NAME, JOB_TITLE
+FROM EMPLOYEES E, JOBS J
+WHERE E.JOB_ID = J.JOB_IDENT;
+
+SELECT E.EMP_ID, E.F_NAME, E.L_NAME, J.JOB_TITLE
+FROM EMPLOYEES E, JOBS J
+WHERE E.JOB_ID = J.JOB_IDENT;
